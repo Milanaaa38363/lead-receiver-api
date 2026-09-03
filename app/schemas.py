@@ -1,5 +1,4 @@
-@"
-from pydantic import BaseModel, Field, field_validator
+﻿from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 from typing import List, Optional
 from app.utils import normalize_phone, InvalidPhoneError
@@ -50,4 +49,3 @@ class CreateLeadResponse(BaseModel):
     client_id: str
     deal_id: str
     message: str
-"@ | Out-File -Encoding utf8 app/schemas.py
