@@ -62,4 +62,3 @@ def create_lead(request: CreateLeadRequest, db: Session = Depends(get_db)):
 @app.get("/deals/", response_model=List[DealResponse])
 def get_deals(db: Session = Depends(get_db)):
     return db.query(Deal).all()
-"@ | Out-File -Encoding utf8 app/main.py
