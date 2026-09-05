@@ -16,7 +16,7 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/", response_class=HTMLResponse)
 def read_root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="index.html")
 
 @app.post("/leads/", response_model=CreateLeadResponse)
 def create_lead(request: CreateLeadRequest, db: Session = Depends(get_db)):
