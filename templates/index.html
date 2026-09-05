@@ -16,7 +16,6 @@
         <h2 class="fw-bold mb-4 text-center">CRM — Управление лидами</h2>
         
         <div class="row g-4">
-            <!-- Форма отправки -->
             <div class="col-md-5">
                 <div class="card p-4">
                     <h5 class="fw-bold mb-3">Новая заявка</h5>
@@ -43,7 +42,6 @@
                 </div>
             </div>
 
-            <!-- Таблица сделок -->
             <div class="col-md-7">
                 <div class="card p-4">
                     <h5 class="fw-bold mb-3">Активные сделки</h5>
@@ -74,7 +72,7 @@
             const table = document.getElementById('dealsTable');
             table.innerHTML = '';
             
-            if (deals.length === 0) {
+            if (!deals || deals.length === 0) {
                 table.innerHTML = '<tr><td colspan="4" class="text-center text-muted">Сделок пока нет</td></tr>';
                 return;
             }
