@@ -9,6 +9,12 @@
         body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .card { border-radius: 12px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .btn-primary { background-color: #0d6efd; border: none; border-radius: 8px; padding: 10px 20px; }
+        
+        /* Плавное затухание подсветки */
+        .highlight-row {
+            background-color: #d1e7dd !important;
+            transition: background-color 2s ease-out;
+        }
     </style>
 </head>
 <body class="py-5">
@@ -16,6 +22,7 @@
         <h2 class="fw-bold mb-4 text-center">CRM — Управление лидами</h2>
         
         <div class="row g-4">
+            <!-- Форма отправки -->
             <div class="col-md-5">
                 <div class="card p-4">
                     <h5 class="fw-bold mb-3">Новая заявка</h5>
@@ -42,6 +49,7 @@
                 </div>
             </div>
 
+            <!-- Таблица сделок -->
             <div class="col-md-7">
                 <div class="card p-4">
                     <h5 class="fw-bold mb-3">Активные сделки</h5>
@@ -66,7 +74,7 @@
     </div>
 
     <script>
-        async function loadDeals() {
+        async function loadDeals(highlightDealId = null) {
             const res = await fetch('/deals/');
             const deals = await res.json();
             const table = document.getElementById('dealsTable');
@@ -78,8 +86,11 @@
             }
 
             deals.forEach(d => {
+                const isTarget = highlightDealId && d.id === highlightDealId;
+                const rowClass = isTarget ? 'highlight-row' : '';
+
                 table.innerHTML += `
-                    <tr>
+                    <tr id="deal-row-${d.id}" class="${rowClass}">
                         <td class="fw-bold">#${d.id.slice(0, 8)}</td>
                         <td>${d.client ? d.client.name : '—'}</td>
                         <td>${d.client ? d.client.phone_normalized : '—'}</td>
@@ -87,6 +98,17 @@
                     </tr>
                 `;
             });
+
+            // Если передавали ID для подсветки, плавно убираем её через 2.5 секунды
+            if (highlightDealId) {
+                const targetRow = document.getElementById(`deal-row-${highlightDealId}`);
+                if (targetRow) {
+                    targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    setTimeout(() => {
+                        targetRow.classList.remove('highlight-row');
+                    }, 2500);
+                }
+            }
         }
 
         document.getElementById('leadForm').addEventListener('submit', async (e) => {
@@ -110,7 +132,8 @@
             if (res.ok) {
                 alertBox.innerHTML = `<div class="alert alert-success py-2 mb-0">${data.message}</div>`;
                 document.getElementById('leadForm').reset();
-                loadDeals();
+                // Передаем deal_id для автоматической подсветки и фокуса
+                loadDeals(data.deal_id);
             } else {
                 alertBox.innerHTML = `<div class="alert alert-danger py-2 mb-0">${data.detail[0]?.msg || 'Ошибка ввода'}</div>`;
             }
