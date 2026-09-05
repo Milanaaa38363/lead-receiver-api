@@ -10,10 +10,15 @@
         .card { border-radius: 12px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .btn-primary { background-color: #0d6efd; border: none; border-radius: 8px; padding: 10px 20px; }
         
-        /* Плавное затухание подсветки */
+        /* Анимация подсветки для строки */
+        @keyframes highlightAnimation {
+            0% { background-color: #d1e7dd; transform: scale(1.01); }
+            50% { background-color: #a3cfbb; }
+            100% { background-color: transparent; transform: scale(1); }
+        }
+
         .highlight-row {
-            background-color: #d1e7dd !important;
-            transition: background-color 2s ease-out;
+            animation: highlightAnimation 3s ease-in-out;
         }
     </style>
 </head>
@@ -85,30 +90,24 @@
                 return;
             }
 
+            // Если передали ID сделки, помещаем её на самую верхнюю строчку
+            if (highlightDealId) {
+                deals.sort((a, b) => (String(a.id) === String(highlightDealId) ? -1 : String(b.id) === String(highlightDealId) ? 1 : 0));
+            }
+
             deals.forEach(d => {
-                const isTarget = highlightDealId && d.id === highlightDealId;
-                const rowClass = isTarget ? 'highlight-row' : '';
+                const isTarget = highlightDealId && String(d.id) === String(highlightDealId);
+                const rowClass = isTarget ? 'highlight-row table-success' : '';
 
                 table.innerHTML += `
                     <tr id="deal-row-${d.id}" class="${rowClass}">
-                        <td class="fw-bold">#${d.id.slice(0, 8)}</td>
+                        <td class="fw-bold">#${String(d.id).slice(0, 8)}</td>
                         <td>${d.client ? d.client.name : '—'}</td>
                         <td>${d.client ? d.client.phone_normalized : '—'}</td>
                         <td><span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">${d.status}</span></td>
                     </tr>
                 `;
             });
-
-            // Если передавали ID для подсветки, плавно убираем её через 2.5 секунды
-            if (highlightDealId) {
-                const targetRow = document.getElementById(`deal-row-${highlightDealId}`);
-                if (targetRow) {
-                    targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    setTimeout(() => {
-                        targetRow.classList.remove('highlight-row');
-                    }, 2500);
-                }
-            }
         }
 
         document.getElementById('leadForm').addEventListener('submit', async (e) => {
@@ -132,7 +131,7 @@
             if (res.ok) {
                 alertBox.innerHTML = `<div class="alert alert-success py-2 mb-0">${data.message}</div>`;
                 document.getElementById('leadForm').reset();
-                // Передаем deal_id для автоматической подсветки и фокуса
+                // Передаем deal_id для закрепления сверху и зеленой вспышки
                 loadDeals(data.deal_id);
             } else {
                 alertBox.innerHTML = `<div class="alert alert-danger py-2 mb-0">${data.detail[0]?.msg || 'Ошибка ввода'}</div>`;
