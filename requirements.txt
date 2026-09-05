@@ -1,7 +1,5 @@
-@"
 fastapi
 uvicorn
 sqlalchemy
 pydantic
 jinja2
-"@ | Out-File -Encoding utf8 requirements.txt
